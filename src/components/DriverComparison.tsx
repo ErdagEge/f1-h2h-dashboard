@@ -13,19 +13,25 @@ export default function DriverComparison() {
   const [driver2, setDriver2] = useState("");
   const [stats, setStats] = useState<HeadToHeadStats | null>(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    getDrivers(season).then(setDrivers).catch(console.error);
+    setError(null);
+    getDrivers(season)
+      .then(setDrivers)
+      .catch(() => setError("Failed to load drivers. Please try again."));
   }, [season]);
 
   const compare = async () => {
     if (!driver1 || !driver2) return;
     setLoading(true);
+    setError(null);
     try {
       const s = await getHeadToHead(season, driver1, driver2);
       setStats(s);
     } catch (e) {
       console.error(e);
+      setError("Failed to load race results. Please try again later.");
     } finally {
       setLoading(false);
     }
@@ -65,6 +71,8 @@ export default function DriverComparison() {
       >
         {loading ? "Comparing..." : "Compare"}
       </button>
+
+      {error && <p className="text-red-500">{error}</p>}
 
       {stats && driver1Name && driver2Name && (
         <>

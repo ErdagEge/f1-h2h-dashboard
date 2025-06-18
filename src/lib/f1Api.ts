@@ -34,6 +34,10 @@ export interface HeadToHeadStats {
 
 const BASE_URL = "https://ergast.com/api/f1";
 
+// Simple in-memory caches keyed by season
+const driversCache: Record<string, Driver[]> = {};
+
+
 const driverSchema = z.object({
   driverId: z.string(),
   permanentNumber: z.string().optional(),
@@ -86,11 +90,16 @@ async function fetchJson<T>(url: string, schema: z.Schema<T>): Promise<T> {
 }
 
 export async function getDrivers(season: string): Promise<Driver[]> {
+  if (driversCache[season]) {
+    return driversCache[season];
+  }
   const data = await fetchJson(
     `${BASE_URL}/${season}/drivers.json?limit=1000`,
     driversResponseSchema
   );
-  return data.MRData.DriverTable.Drivers;
+  const drivers = data.MRData.DriverTable.Drivers;
+  driversCache[season] = drivers;
+  return drivers;
 }
 
 interface RaceResultInternal {
@@ -101,12 +110,19 @@ interface RaceResultInternal {
   Results: Array<{ position?: string; grid?: string; points?: string; Driver: Driver }>;
 }
 
+const raceResultsCache: Record<string, RaceResultInternal[]> = {};
+
 export async function getRaceResults(season: string): Promise<RaceResultInternal[]> {
+  if (raceResultsCache[season]) {
+    return raceResultsCache[season];
+  }
   const data = await fetchJson(
     `${BASE_URL}/${season}/results.json?limit=1000`,
     racesResponseSchema
   );
-  return data.MRData.RaceTable.Races;
+  const races = data.MRData.RaceTable.Races;
+  raceResultsCache[season] = races;
+  return races;
 }
 
 function parsePosition(position?: string): number {
