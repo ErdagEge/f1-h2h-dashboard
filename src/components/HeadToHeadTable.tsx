@@ -25,6 +25,21 @@ export default function HeadToHeadTable({ stats, driver1Name, driver2Name }: Pro
           <td className="border px-2 py-1 text-center">{stats.driver2Wins}</td>
         </tr>
         <tr>
+          <td className="border px-2 py-1 text-left">Points</td>
+          <td className="border px-2 py-1 text-center">{stats.driver1Points}</td>
+          <td className="border px-2 py-1 text-center">{stats.driver2Points}</td>
+        </tr>
+        <tr>
+          <td className="border px-2 py-1 text-left">Podiums</td>
+          <td className="border px-2 py-1 text-center">{stats.driver1Podiums}</td>
+          <td className="border px-2 py-1 text-center">{stats.driver2Podiums}</td>
+        </tr>
+        <tr>
+          <td className="border px-2 py-1 text-left">Poles</td>
+          <td className="border px-2 py-1 text-center">{stats.driver1Poles}</td>
+          <td className="border px-2 py-1 text-center">{stats.driver2Poles}</td>
+        </tr>
+        <tr>
           <td className="border px-2 py-1 text-left">Ties</td>
           <td className="border px-2 py-1 text-center" colSpan={2}>{stats.ties}</td>
         </tr>

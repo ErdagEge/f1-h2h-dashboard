@@ -24,6 +24,12 @@ export interface HeadToHeadStats {
   driver1Wins: number;
   driver2Wins: number;
   ties: number;
+  driver1Points: number;
+  driver2Points: number;
+  driver1Podiums: number;
+  driver2Podiums: number;
+  driver1Poles: number;
+  driver2Poles: number;
 }
 
 const BASE_URL = "https://ergast.com/api/f1";
@@ -40,6 +46,8 @@ const driverSchema = z.object({
 
 const resultSchema = z.object({
   position: z.string().optional(),
+  grid: z.string().optional(),
+  points: z.string().optional(),
   Driver: driverSchema,
 });
 
@@ -90,7 +98,7 @@ interface RaceResultInternal {
   round: string;
   raceName: string;
   date: string;
-  Results: Array<{ position?: string; Driver: Driver }>;
+  Results: Array<{ position?: string; grid?: string; points?: string; Driver: Driver }>;
 }
 
 export async function getRaceResults(season: string): Promise<RaceResultInternal[]> {
@@ -106,6 +114,11 @@ function parsePosition(position?: string): number {
   return isNaN(parsed) ? Infinity : parsed;
 }
 
+function parseNumber(value?: string): number {
+  const parsed = value ? parseFloat(value) : NaN;
+  return isNaN(parsed) ? 0 : parsed;
+}
+
 export async function getHeadToHead(
   season: string,
   driver1Id: string,
@@ -115,6 +128,12 @@ export async function getHeadToHead(
   let driver1Wins = 0;
   let driver2Wins = 0;
   let ties = 0;
+  let driver1Points = 0;
+  let driver2Points = 0;
+  let driver1Podiums = 0;
+  let driver2Podiums = 0;
+  let driver1Poles = 0;
+  let driver2Poles = 0;
 
   for (const race of races) {
     const result1 = race.Results.find((r) => r.Driver.driverId === driver1Id);
@@ -122,6 +141,10 @@ export async function getHeadToHead(
     if (!result1 || !result2) continue;
     const pos1 = parsePosition(result1.position);
     const pos2 = parsePosition(result2.position);
+    const grid1 = parsePosition(result1.grid);
+    const grid2 = parsePosition(result2.grid);
+    const points1 = parseNumber(result1.points);
+    const points2 = parseNumber(result2.points);
     if (pos1 === pos2) {
       ties += 1;
     } else if (pos1 < pos2) {
@@ -129,7 +152,24 @@ export async function getHeadToHead(
     } else {
       driver2Wins += 1;
     }
+    driver1Points += points1;
+    driver2Points += points2;
+    if (pos1 <= 3) driver1Podiums += 1;
+    if (pos2 <= 3) driver2Podiums += 1;
+    if (grid1 === 1) driver1Poles += 1;
+    if (grid2 === 1) driver2Poles += 1;
   }
 
-  return { season, driver1Wins, driver2Wins, ties };
+  return {
+    season,
+    driver1Wins,
+    driver2Wins,
+    ties,
+    driver1Points,
+    driver2Points,
+    driver1Podiums,
+    driver2Podiums,
+    driver1Poles,
+    driver2Poles,
+  };
 }
