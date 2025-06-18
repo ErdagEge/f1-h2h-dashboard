@@ -4,6 +4,7 @@ import React, { useEffect, useState } from "react";
 import { Driver, getDrivers, getHeadToHead, HeadToHeadStats } from "@/lib/f1Api";
 import DriverSelect from "./DriverSelect";
 import HeadToHeadTable from "./HeadToHeadTable";
+import HeadToHeadChart from "./HeadToHeadChart";
 
 export default function DriverComparison() {
   const [season, setSeason] = useState("2023");
@@ -66,11 +67,18 @@ export default function DriverComparison() {
       </button>
 
       {stats && driver1Name && driver2Name && (
-        <HeadToHeadTable
-          stats={stats}
-          driver1Name={`${driver1Name.givenName} ${driver1Name.familyName}`}
-          driver2Name={`${driver2Name.givenName} ${driver2Name.familyName}`}
-        />
+        <>
+          <HeadToHeadChart
+            stats={stats}
+            driver1Name={`${driver1Name.givenName} ${driver1Name.familyName}`}
+            driver2Name={`${driver2Name.givenName} ${driver2Name.familyName}`}
+          />
+          <HeadToHeadTable
+            stats={stats}
+            driver1Name={`${driver1Name.givenName} ${driver1Name.familyName}`}
+            driver2Name={`${driver2Name.givenName} ${driver2Name.familyName}`}
+          />
+        </>
       )}
     </div>
   );
